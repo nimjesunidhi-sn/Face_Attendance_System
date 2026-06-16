@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Face Attendance System</title>
+</head>
+<body>
+
+    <h1>Face Attendance System</h1>
+
+    <video id="video" width="640" height="480" autoplay></video>
+    <br><br>
+
+    <button onclick="capture()">Mark Attendance</button>
+
+    <h2 id="result"></h2>
+
+    <canvas id="canvas" width="640" height="480" style="display:none;"></canvas>
+
+    <script>
+        const video = document.getElementById("video");
+
+        // Start webcam
+        navigator.mediaDevices.getUserMedia({ video: true })
+            .then(stream => {
+                video.srcObject = stream;
+            })
+            .catch(err => {
+                alert("Camera access denied!");
+                console.error(err);
+            });
+
+        async function capture() {
+
+            const canvas = document.getElementById("canvas");
+            const ctx = canvas.getContext("2d");
+
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+            canvas.toBlob(async function(blob) {
+
+                const formData = new FormData();
+                formData.append("file", blob, "capture.jpg");
+
+                try {
+
+                    const response = await fetch(
+                        "http://127.0.0.1:8000/recognize",
+                        {
+                            method: "POST",
+                            body: formData
+                        }
+                    );
+
+                    const data = await response.json();
+
+                    document.getElementById("result").innerHTML =
+                        "Name: " + data.name +
+                        "<br>Attendance: " + data.attendance;
+
+                } catch (error) {
+
+                    console.error(error);
+
+                    document.getElementById("result").innerHTML =
+                        "Error connecting to FastAPI";
+
+                }
+
+            }, "image/jpeg");
+        }
+    </script>
+
+</body>
+</html>
