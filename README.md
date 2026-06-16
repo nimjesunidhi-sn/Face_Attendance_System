@@ -94,10 +94,5 @@ Future Improvements
 - Attendance Analytics
 - Multi-Face Recognition
 
-Author
-
-Sunidhi Nimje
-
-License
 
 This project is for educational and learning purposes.
